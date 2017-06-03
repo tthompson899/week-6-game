@@ -46,36 +46,24 @@
                 console.log(response);
                 console.log(queryURL);
 
-                // Creating a div to hold the movie
-                var movieDiv = $("<div class='movie'>");
-                // Storing the rating data
-                var rating = response.data.rating;
-                // Creating an element to have the rating displayed
-                var pOne = $("<p>").text("Rating: " + rating);
-                // Displaying the rating
-                movieDiv.append(pOne);
-                // // Storing the release year
-                // var released = response.Released;
-                // // Creating an element to hold the release year
-                // var pTwo = $("<p>").text("Released: " + released);
-                // // Displaying the release year
-                // movieDiv.append(pTwo);
-                // // Storing the plot
-                // var plot = response.Plot;
-                // // Creating an element to hold the plot
-                // var pThree = $("<p>").text("Plot: " + plot);
-                // // Appending the plot
-                // movieDiv.append(pThree);
-                // Retrieving the URL for the image
-                var imgURL = response.data.images;
-                // Creating an element to hold the image
-                var image = $("<img>").attr("src", imgURL);
-                // Appending the image
-                movieDiv.append(image);
-                // Putting the entire movie above the previous movies
-                $("#movies-view").prepend(movieDiv);
-            });
+                for (var i = 0; i < response.data.length; i++) {
+                    var imgURL = response.data[i].images.fixed_height_still.url;
+                    var imgAnimate = response.data[i].images.original.url;
+                    var image = $("<img>");
+                    image.attr("src", imgURL);
+                    image.addClass("gif");
+                    image.attr("data-state", "still");
+                    image.attr("data-animate", imgAnimate);
+                    image.attr("data-still", imgURL);
+                    var movieDiv = $("<div class='emotion'>");
+                    movieDiv.append(image);
+                    $("#movies-view").prepend(movieDiv);
+                    var rating = response.data[i].rating;
+                    var pOne = $("<p>").text("Rating: " + rating);
+                    movieDiv.append(pOne);
+                }
 
+            });
         }
         // Function for displaying movie data
         function renderButtons() {
@@ -106,6 +94,23 @@
             emotions.push(movie);
             // Calling renderButtons which handles the processing of our movie array
             renderButtons();
+
+        });
+        $(document).on("click", ".gif", function() {
+            // $(".gif").on("click", function() {
+            console.log(this);
+            // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+            var state = $(this).attr("data-state");
+            // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+            // Then, set the image's data-state to animate
+            // Else set src to the data-still value
+            if (state === "still") {
+                $(this).attr("src", $(this).attr("data-animate"));
+                $(this).attr("data-state", "animate");
+            } else {
+                $(this).attr("src", $(this).attr("data-still"));
+                $(this).attr("data-state", "still");
+            }
         });
         // Adding a click event listener to all elements with a class of "movie"
         $(document).on("click", ".movie", displayMovieInfo);
